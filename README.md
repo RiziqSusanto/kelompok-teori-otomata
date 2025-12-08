@@ -1,7 +1,7 @@
 # kelompok-teori-otomata
 
 - Muhammad Riziq Susanto (1003220020)
--
+- Irvan Maulana (1003220023)
 -
 -
 
