@@ -1,0 +1,121 @@
+# 1. Definisi Tipe Token
+# TT = Token Type
+TT_INT    = 'INT'      # Bilangan bulat (Integer)
+TT_PLUS   = 'PLUS'     # Operator +
+TT_MINUS  = 'MINUS'    # Operator -
+TT_MUL    = 'MUL'      # Operator *
+TT_DIV    = 'DIV'      # Operator /
+TT_LPAREN = 'LPAREN'   # Tanda kurung buka (
+TT_RPAREN = 'RPAREN'   # Tanda kurung tutup )
+
+# --- Kelas Token ---
+class Token:
+    """
+    Kelas untuk merepresentasikan unit terkecil yang bermakna (Token).
+    """
+    def __init__(self, type_, value=None):
+        self.type = type_
+        self.value = value
+
+    # Representasi string untuk mempermudah pencetakan (debugging/output)
+    def __repr__(self):
+        if self.value:
+            return f'{self.type}:{self.value}'
+        return f'{self.type}'
+
+# --- Kelas Lexer ---
+class Lexer:
+    """
+    Kelas yang bertanggung jawab untuk mengubah teks mentah menjadi daftar Token.
+    """
+    def __init__(self, text):
+        self.text = text
+        self.pos = -1         # Posisi kursor saat ini [cite: 82]
+        self.current_char = None # Karakter yang ditunjuk kursor [cite: 83]
+        self.advance()
+
+    def advance(self):
+        """
+        Memajukan kursor ke karakter berikutnya dan memperbarui current_char.
+        Jika sudah di akhir teks, current_char diatur menjadi None. [cite: 84]
+        """
+        self.pos += 1
+        # Mengambil karakter, jika index di luar batas, atur None
+        self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
+
+    def make_tokens(self):
+        """
+        Fungsi utama untuk menghasilkan daftar token dari teks input.
+        """
+        tokens = []
+
+        # Loop selama masih ada karakter yang harus diproses
+        while self.current_char != None:
+            # 1. Mengabaikan Spasi (Whitespace)
+            if self.current_char.isspace():
+                self.advance()
+
+            # 2. Membaca Angka Multi-Digit [cite: 85, 88, 117]
+            elif self.current_char.isdigit():
+                tokens.append(self.make_number())
+
+            # 3. Membaca Operator dan Kurung
+            elif self.current_char == '+':
+                tokens.append(Token(TT_PLUS))
+                self.advance()
+            elif self.current_char == '-':
+                tokens.append(Token(TT_MINUS))
+                self.advance()
+            elif self.current_char == '*':
+                tokens.append(Token(TT_MUL))
+                self.advance()
+            elif self.current_char == '/':
+                tokens.append(Token(TT_DIV))
+                self.advance()
+            elif self.current_char == '(':
+                tokens.append(Token(TT_LPAREN))
+                self.advance()
+            elif self.current_char == ')':
+                tokens.append(Token(TT_RPAREN))
+                self.advance()
+
+            # 4. Penanganan Karakter Ilegal (Error Handling) [cite: 106, 108]
+            else:
+                # Untuk bahasa sederhana, kita bisa mengasumsikan karakter lain adalah ilegal
+                char = self.current_char
+                self.advance()
+                raise Exception(f"Illegal Character: '{char}'")
+
+        return tokens
+
+    def make_number(self):
+        """
+        Membaca dan mengembalikan Token INT multi-digit. [cite: 88]
+        """
+        num_str = ''
+
+        # Terus berjalan selama kursor menunjuk ke digit
+        while self.current_char != None and self.current_char.isdigit():
+            num_str += self.current_char
+            self.advance() # Majukan kursor
+
+        # Setelah loop selesai, num_str berisi seluruh angka (misal: "10" atau "123")
+        # Konversi ke integer dan buat Token
+        return Token(TT_INT, int(num_str))
+
+# --- Contoh Penggunaan ---
+def run(text):
+    lexer = Lexer(text)
+    tokens = lexer.make_tokens()
+    return tokens
+
+# Target input: (10 + 2 ) * 5 [cite: 119]
+input_text = "(10 + 2 ) * 5"
+
+print(f"Input Teks: \"{input_text}\"")
+try:
+    result_tokens = run(input_text)
+    print("\n✅ Output Token List:")
+    print(result_tokens)
+except Exception as e:
+    print(f"\n❌ Error saat Lexing: {e}")
