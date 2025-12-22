@@ -11,6 +11,29 @@ const TOKEN = {
     EOF: "EOF"
 };
 
+class NumberNode {
+    constructor(value) {
+        this.value = value;
+    }
+
+    toString() {
+        return `NumberNode(${this.value})`;
+    }
+}
+
+class BinOpNode {
+    constructor(op, left, right) {
+        this.op = op;
+        this.left = left;
+        this.right = right;
+    }
+
+    toString(indent = 0) {
+        const pad = ' '.repeat(indent);
+        return `BinOpNode(${this.op},\n${pad}  ${this.left.toString(indent + 2)},\n${pad}  ${this.right.toString(indent + 2)})`;
+    }
+}
+
 export class Parser {
     constructor(input) {
         this.lexer = new Lexer(input);
@@ -38,7 +61,7 @@ export class Parser {
 
         if (token.type === TOKEN.INT) {
             this.eat(TOKEN.INT);
-            return token.value;
+            return new NumberNode(token.value);
         } else if (token.type === TOKEN.LPAREN) {
             this.eat(TOKEN.LPAREN);
             const result = this.expr();
@@ -56,14 +79,10 @@ export class Parser {
             const token = this.currentToken;
             if (token.type === TOKEN.MUL) {
                 this.eat(TOKEN.MUL);
-                result = result * this.factor();
+                result = new BinOpNode('*', result, this.factor());
             } else if (token.type === TOKEN.DIV) {
                 this.eat(TOKEN.DIV);
-                const divisor = this.factor();
-                if (divisor === 0) {
-                    this.error("Pembagian dengan nol tidak diperbolehkan");
-                }
-                result = result / divisor;
+                result = new BinOpNode('/', result, this.factor());
             }
         }
 
@@ -77,10 +96,10 @@ export class Parser {
             const token = this.currentToken;
             if (token.type === TOKEN.PLUS) {
                 this.eat(TOKEN.PLUS);
-                result = result + this.term();
+                result = new BinOpNode('+', result, this.term());
             } else if (token.type === TOKEN.MINUS) {
                 this.eat(TOKEN.MINUS);
-                result = result - this.term();
+                result = new BinOpNode('-', result, this.term());
             }
         }
 

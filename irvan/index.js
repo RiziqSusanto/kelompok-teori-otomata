@@ -22,6 +22,7 @@ console.log("\n=== PENGUJIAN PARSER ===");
 const targetCases = [
     "10 + 2 * (5 - 3)",
     "10 + * ",
+    "3 * (4 + 5)",
 ];
 
 targetCases.forEach((expression, index) => {
@@ -30,6 +31,8 @@ targetCases.forEach((expression, index) => {
 
     if (result.valid) {
         console.log(`✅ Valid`);
+        console.log("AST:");
+        console.log(result.result.toString());
     } else {
         console.log(`❌ Invalid `);
     }
