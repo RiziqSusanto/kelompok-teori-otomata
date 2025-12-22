@@ -7,4 +7,4 @@
 
 ### Tugas
 
-Tugas Kelompok 1 (Lexer) = `tugas-lexer`
+Tugas Kelompok 1 (Abstract Syntax Tree) = `tugas-AST`
