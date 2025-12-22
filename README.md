@@ -7,5 +7,5 @@
 
 ### Tugas
 
-Tugas Kelompok 1 & 2 (Lexer & Parser) = `tugas-lexer`
-Tugas Kelompok 3 (AST) = `tugas-ast`
+- Tugas Kelompok 1 & 2 (Lexer & Parser) = `tugas-lexer`
+- Tugas Kelompok 3 (AST) = `tugas-ast`
