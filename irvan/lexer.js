@@ -5,7 +5,10 @@ const TOKEN = {
     MUL: "MUL",
     DIV: "DIV",
     LPAREN: "LPAREN",
-    RPAREN: "RPAREN"
+    RPAREN: "RPAREN",
+    IDENTIFIER: "IDENTIFIER",
+    KEYWORD: "KEYWORD",
+    EQ: "EQ"
 };
 
 export class Lexer {
@@ -84,6 +87,23 @@ export class Lexer {
 
             if (this.currentChar === ")") {
                 tokens.push({ type: TOKEN.RPAREN, value: ")" });
+                this.advance();
+                continue;
+           }
+
+            if (/[a-zA-Z_]/.test(this.currentChar)) {
+                let identifier = "";
+                while (this.currentChar !== null && /[a-zA-Z0-9_]/.test(this.currentChar)) {
+                    identifier += this.currentChar;
+                    this.advance();
+                }
+                const type = identifier === "true" || identifier === "false" ? TOKEN.KEYWORD : TOKEN.IDENTIFIER;
+                tokens.push({ type, value: identifier });
+                continue;
+            }
+
+            if (this.currentChar === "=") {
+                tokens.push({ type: TOKEN.EQ, value: "=" });
                 this.advance();
                 continue;
             }

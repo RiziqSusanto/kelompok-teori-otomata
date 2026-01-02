@@ -20,9 +20,9 @@ console.log("Token list:", tokens);
 console.log("\n=== PENGUJIAN PARSER ===");
 
 const targetCases = [
-    "10 + 2 * (5 - 3)",
-    "10 + * ",
-    "3 * (4 + 5)",
+    "x = 100",
+    "y = 5",
+    "result = x + y"
 ];
 
 targetCases.forEach((expression, index) => {
@@ -30,8 +30,7 @@ targetCases.forEach((expression, index) => {
     const result = Parser.validate(expression);
 
     if (result.valid) {
-        console.log(`✅ Valid`);
-        console.log("AST:");
+        console.log("Output:");
         console.log(result.result.toString());
     } else {
         console.log(`❌ Invalid `);

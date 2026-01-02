@@ -8,6 +8,9 @@ const TOKEN = {
     DIV: "DIV",
     LPAREN: "LPAREN",
     RPAREN: "RPAREN",
+    IDENTIFIER: "IDENTIFIER",
+    KEYWORD: "KEYWORD",
+    EQ: "EQ",
     EOF: "EOF"
 };
 
@@ -17,7 +20,7 @@ class NumberNode {
     }
 
     toString() {
-        return `NumberNode(${this.value})`;
+        return `${this.value}`;
     }
 }
 
@@ -30,7 +33,29 @@ class BinOpNode {
 
     toString(indent = 0) {
         const pad = ' '.repeat(indent);
-        return `BinOpNode(${this.op},\n${pad}  ${this.left.toString(indent + 2)},\n${pad}  ${this.right.toString(indent + 2)})`;
+        return `BinOpNode(\n${pad}  ${this.left.toString(indent + 2)},\n${pad}  ${this.op},\n${pad}  ${this.right.toString(indent + 2)})`;
+    }
+}
+
+class VarAccessNode {
+    constructor(var_name_token) {
+        this.var_name_token = var_name_token;
+    }
+
+    toString() {
+        return `VarAccessNode(${this.var_name_token.value})`;
+    }
+}
+
+class VarAssignNode {
+    constructor(var_name_token, value_node) {
+        this.var_name_token = var_name_token;
+        this.value_node = value_node;
+    }
+
+    toString(indent = 0) {
+        const pad = ' '.repeat(indent);
+        return `VarAssignNode(${this.var_name_token.value}, ${this.value_node.toString(indent + 2)})`;
     }
 }
 
@@ -62,13 +87,16 @@ export class Parser {
         if (token.type === TOKEN.INT) {
             this.eat(TOKEN.INT);
             return new NumberNode(token.value);
+        } else if (token.type === TOKEN.IDENTIFIER) {
+            this.eat(TOKEN.IDENTIFIER);
+            return new VarAccessNode(token);
         } else if (token.type === TOKEN.LPAREN) {
             this.eat(TOKEN.LPAREN);
             const result = this.expr();
             this.eat(TOKEN.RPAREN);
             return result;
         } else {
-            this.error("Diharapkan integer atau ekspresi dalam kurung");
+            this.error("Diharapkan integer, identifier, atau ekspresi dalam kurung");
         }
     }
 
@@ -79,10 +107,27 @@ export class Parser {
             const token = this.currentToken;
             if (token.type === TOKEN.MUL) {
                 this.eat(TOKEN.MUL);
-                result = new BinOpNode('*', result, this.factor());
+                result = new BinOpNode(token.type, result, this.factor());
             } else if (token.type === TOKEN.DIV) {
                 this.eat(TOKEN.DIV);
-                result = new BinOpNode('/', result, this.factor());
+                result = new BinOpNode(token.type, result, this.factor());
+            }
+        }
+
+        return result;
+    }
+
+    bin_op_expr() {
+        let result = this.term();
+
+        while (this.currentToken.type === TOKEN.PLUS || this.currentToken.type === TOKEN.MINUS) {
+            const token = this.currentToken;
+            if (token.type === TOKEN.PLUS) {
+                this.eat(TOKEN.PLUS);
+                result = new BinOpNode(token.type, result, this.term());
+            } else if (token.type === TOKEN.MINUS) {
+                this.eat(TOKEN.MINUS);
+                result = new BinOpNode(token.type, result, this.term());
             }
         }
 
@@ -90,20 +135,15 @@ export class Parser {
     }
 
     expr() {
-        let result = this.term();
-
-        while (this.currentToken.type === TOKEN.PLUS || this.currentToken.type === TOKEN.MINUS) {
-            const token = this.currentToken;
-            if (token.type === TOKEN.PLUS) {
-                this.eat(TOKEN.PLUS);
-                result = new BinOpNode('+', result, this.term());
-            } else if (token.type === TOKEN.MINUS) {
-                this.eat(TOKEN.MINUS);
-                result = new BinOpNode('-', result, this.term());
-            }
+        if (this.currentToken.type === TOKEN.IDENTIFIER && this.tokens[this.pos + 1] && this.tokens[this.pos + 1].type === TOKEN.EQ) {
+            const var_name = this.currentToken;
+            this.eat(TOKEN.IDENTIFIER);
+            this.eat(TOKEN.EQ);
+            const value = this.expr();
+            return new VarAssignNode(var_name, value);
+        } else {
+            return this.bin_op_expr();
         }
-
-        return result;
     }
 
     parse() {
