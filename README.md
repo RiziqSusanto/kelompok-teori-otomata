@@ -10,3 +10,7 @@
 - Tugas Kelompok 1 & 2 (Lexer & Parser) = `tugas-lexer`
 - Tugas Kelompok 3 (AST) = `tugas-ast`
 - Tugas Kelompok 4 (Pertemuan 12) = `pertemuan-12/implementation-symbol-table-variables`
+
+### Link Video Demo
+
+- Lexer = [Demo Lexer](https://youtu.be/C16jEDD-33c)
