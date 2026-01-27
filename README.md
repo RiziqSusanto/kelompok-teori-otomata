@@ -13,4 +13,4 @@
 
 ### Link Video Demo
 
-- Lexer = `[text](https://youtu.be/C16jEDD-33c)`
+- Lexer = [text](https://youtu.be/C16jEDD-33c)
