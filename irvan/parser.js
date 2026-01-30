@@ -20,8 +20,8 @@ export class Parser {
         this.currentToken = this.tokens[this.pos];
     }
 
-    error() {
-        throw new Error(`Invalid`);
+    error(message) {
+        throw new Error(message);
     }
 
     eat(tokenType) {
@@ -110,7 +110,15 @@ export class Parser {
     }
 
     static validate(input) {
-        const parser = new Parser(input);
-        return parser.parse();
+        try {
+            const parser = new Parser(input);
+            return parser.parse();
+        } catch (error) {
+            return {
+                valid: false,
+                result: null,
+                message: error.message
+            };
+        }
     }
 }
